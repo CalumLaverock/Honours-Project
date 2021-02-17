@@ -1,12 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <time.h>
+#include "Room.h"
 
 #define PI 3.14159265
 #define RAND0TO1 ((double)rand() / (RAND_MAX))
 
 sf::Vector2f getRandomPointInCircle(float radius, sf::Vector2f centre);
-std::vector<sf::RectangleShape> generateRooms(int numRooms, float radius, sf::Vector2f centre);
+void generateRooms(int numRooms, float radius, sf::Vector2f centre, std::vector<Room*>& rooms);
 
 int main()
 {
@@ -14,7 +15,7 @@ int main()
     float radius = 200.f;
     sf::Vector2f centre(800.f, 450.f);
 
-    std::vector<sf::RectangleShape> rooms;
+    std::vector<Room*> rooms;
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "SFML works!");
     sf::CircleShape shape(radius);
@@ -33,8 +34,21 @@ int main()
             {
                 if (event.key.code == sf::Keyboard::R)
                 {
+                    for (auto room : rooms)
+                    {
+                        delete room;
+                    }
                     rooms.clear();
-                    rooms = generateRooms(40, 100.f, centre);
+
+                    generateRooms(60, 100.f, centre, rooms);
+                }
+
+                if (event.key.code == sf::Keyboard::S)
+                {
+                    for (auto room : rooms)
+                    {
+                        room->CheckCollisions(rooms);
+                    }
                 }
             }
         }
@@ -43,7 +57,7 @@ int main()
         window.draw(shape);
         for (auto room : rooms)
         {
-            window.draw(room);
+            window.draw(room->getShape());
         }
         window.display();
     }
@@ -69,24 +83,24 @@ sf::Vector2f getRandomPointInCircle(float radius, sf::Vector2f centre)
     return randPoint;
 }
 
-std::vector<sf::RectangleShape> generateRooms(int numRooms, float radius, sf::Vector2f centre)
+void generateRooms(int numRooms, float radius, sf::Vector2f centre, std::vector<Room*>& rooms)
 {
-    std::vector<sf::RectangleShape> rooms;
-
     for (int i = 0; i < numRooms; i++)
     {
-        sf::RectangleShape room;
+        Room* room = new Room();
+
+        sf::RectangleShape roomShape;
         sf::Vector2f roomSize((rand() % 120) + 80, (rand() % 80) + 20);
 
-        room.setSize(roomSize);
-        room.setFillColor(sf::Color::Green);
-        room.setOutlineThickness(3.f);
-        room.setOutlineColor(sf::Color::Blue);
+        roomShape.setSize(roomSize);
+        roomShape.setFillColor(sf::Color::Green);
+        roomShape.setOutlineThickness(3.f);
+        roomShape.setOutlineColor(sf::Color::Blue);
+        
+        roomShape.setOrigin(roomSize / 2.f);
+        roomShape.setPosition(getRandomPointInCircle(radius, centre));
 
-        room.setPosition(getRandomPointInCircle(radius, centre) - (roomSize / 2.f));
-
+        room->setShape(roomShape);
         rooms.push_back(room);
     }
-
-    return rooms;
 }

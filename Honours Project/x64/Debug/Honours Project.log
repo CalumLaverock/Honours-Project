@@ -1,14 +1,14 @@
 ﻿  main.cpp
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(13,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(56,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(58,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(59,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(79,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(14,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(70,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(72,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(73,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(93,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(79,46): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\caloo\Documents\Uni Stuff\4th Year\CMP400\Project\Honours Project\Honours Project\main.cpp(93,46): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
