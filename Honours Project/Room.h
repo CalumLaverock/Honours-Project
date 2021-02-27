@@ -9,7 +9,7 @@ public:
 	sf::RectangleShape getShape() { return shape; }
 	void setShape(sf::RectangleShape newShape) { shape = newShape; }
 
-	void CheckCollisions(std::vector<Room*> rooms);
+	bool CheckCollisions(std::vector<Room*> rooms);
 
 private:
 	sf::RectangleShape shape;

@@ -1,6 +1,6 @@
 #include "Room.h"
 
-void Room::CheckCollisions(std::vector<Room*> rooms)
+bool Room::CheckCollisions(std::vector<Room*> rooms)
 {
 	movement.x = 0.f; 
 	movement.y = 0.f;
@@ -15,11 +15,16 @@ void Room::CheckCollisions(std::vector<Room*> rooms)
 				// check where currentRoom is in relation to this room
 				// add 1.f or -1.f to movement vector based on relative position
 				sf::Vector2f offset = shape.getPosition() - currentRoom->getShape().getPosition();
-				movement.x += offset.x / std::abs(offset.x);
-				movement.y += offset.y / std::abs(offset.y);
+				float magnitude = std::abs(std::sqrt(std::pow(offset.x, 2) + std::pow(offset.y, 2)));
+
+				movement.x += offset.x / magnitude;
+				movement.y += offset.y / magnitude;
 			}
 		}
 	}
 
 	shape.move(movement);
+
+	// return true if the room has to move this frame
+	return (movement.x > 0.f || movement.y > 0.f);
 }
