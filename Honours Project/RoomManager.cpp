@@ -22,6 +22,8 @@ void RoomManager::GenerateRooms(int numRooms)
         sf::RectangleShape roomShape;
 
         sf::Vector2f roomSize;
+
+        //random room size between 20 and 140
         roomSize.x = (rand() % 120) + 20;
         roomSize.y = (rand() % 120) + 20;
 
@@ -64,13 +66,60 @@ void RoomManager::SelectRoomsBySize(float xThreshold, float yThreshold)
             sf::RectangleShape newShape;
             sf::RectangleShape oldShape = room->getShape();
 
-            // change the room's fill color to magenta if it is selected
+            // change the room's fill color to cyan if it is selected
             newShape = oldShape;
-            newShape.setFillColor(sf::Color::White);
+            newShape.setFillColor(sf::Color::Cyan);
 
             room->SetSelected(true);
 
             room->setShape(newShape);
+        }
+    }
+}
+
+void RoomManager::SelectObjectiveRooms()
+{
+   // selectedRooms.clear();
+
+    int random = rand() % rooms.size();
+    Room* firstObjRoom = rooms[random];
+    while (!firstObjRoom->IsSelected())
+    {
+        random = rand() % rooms.size();
+        firstObjRoom = rooms[random];
+    }
+
+    random = rand() % rooms.size();
+    Room* secondObjRoom = rooms[random];
+    while ((secondObjRoom->getShape().getPosition().x > (firstObjRoom->getShape().getPosition().x - firstObjRoom->getShape().getSize().x * 2)
+        && secondObjRoom->getShape().getPosition().x < (firstObjRoom->getShape().getPosition().x + firstObjRoom->getShape().getSize().x * 2)
+        && secondObjRoom->getShape().getPosition().y > (firstObjRoom->getShape().getPosition().y - firstObjRoom->getShape().getSize().y * 2)
+        && secondObjRoom->getShape().getPosition().y < (firstObjRoom->getShape().getPosition().y + firstObjRoom->getShape().getSize().y * 2))
+        || !secondObjRoom->IsSelected())
+    {
+        random = rand() % rooms.size();
+        secondObjRoom = rooms[random];
+    }
+
+    // deselect all rooms that aren't the objective rooms and change their colour back to green
+    for (auto room : rooms)
+    {
+        if (room != firstObjRoom && room != secondObjRoom)
+        {
+            sf::RectangleShape newShape;
+            sf::RectangleShape oldShape = room->getShape();
+
+            // change the room's fill color to cyan if it is selected
+            newShape = oldShape;
+            newShape.setFillColor(sf::Color::Green);
+
+            room->SetSelected(false);
+
+            room->setShape(newShape);
+        }
+        else
+        {
+            selectedRooms.push_back(room);
         }
     }
 }

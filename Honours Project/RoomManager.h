@@ -9,7 +9,9 @@ public:
 	void Init(float radius, sf::Vector2f centre);
 	void GenerateRooms(int numRooms);
 	void SeparateRooms(bool& collide);
+
 	void SelectRoomsBySize(float x, float y);
+	void SelectObjectiveRooms();
 
 	std::vector<Room*> GetRooms() { return rooms; }
 	void ClearRooms();
@@ -20,5 +22,6 @@ private:
 	float circleRad;
 	sf::Vector2f circleCentre;
 	std::vector<Room*> rooms;
+	std::vector<Room*> selectedRooms;
 };
 
