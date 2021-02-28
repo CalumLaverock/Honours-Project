@@ -68,6 +68,8 @@ void RoomManager::SelectRoomsBySize(float xThreshold, float yThreshold)
             newShape = oldShape;
             newShape.setFillColor(sf::Color::White);
 
+            room->SetSelected(true);
+
             room->setShape(newShape);
         }
     }

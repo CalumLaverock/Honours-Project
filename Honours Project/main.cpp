@@ -18,6 +18,7 @@ int main()
     shape.setPosition(centre.x - radius, centre.y - radius);
 
     bool collide = false;
+    bool onlySelected = false;
 
     while (window.isOpen())
     {
@@ -43,25 +44,41 @@ int main()
                 {
                     collide = true;
                 }
+
+                if (event.key.code == sf::Keyboard::T)
+                {
+                    onlySelected = !onlySelected;
+                }
             }
         }
 
-        // only check the room collisions if the correct key is pressed
+        // separate rooms once S key is pressed
         if (collide)
         {
             roomManager->SeparateRooms(collide);
         }
 
-        std::string title;
-        title = collide ? "Separating Rooms..." : "Competitive FPS Map Generation";
-
+        // change title while rooms are separating
+        std::string title = collide ? "Separating Rooms..." : "Competitive FPS Map Generation";
         window.setTitle(title);
 
+        // render the rooms
         window.clear();
         window.draw(shape);
         for (auto room : roomManager->GetRooms())
         {
-            window.draw(room->getShape());
+            // allow for toggling of only drawing selected rooms
+            if (onlySelected)
+            {
+                if (room->IsSelected())
+                {
+                    window.draw(room->getShape());
+                }
+            }
+            else
+            {
+                window.draw(room->getShape());
+            }
         }
         window.display();
     }
