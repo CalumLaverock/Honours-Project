@@ -16,6 +16,9 @@ public:
 	std::vector<Room*> GetRooms() { return rooms; }
 	void ClearRooms();
 
+	sf::RectangleShape getInnerBound() { return innerBound; }
+	sf::RectangleShape getOuterBound() { return outerBound; }
+
 private:
 	sf::Vector2f GetRandomPointInCircle();
 
@@ -23,5 +26,8 @@ private:
 	sf::Vector2f circleCentre;
 	std::vector<Room*> rooms;
 	std::vector<Room*> selectedRooms;
+
+	sf::RectangleShape innerBound;
+	sf::RectangleShape outerBound;
 };
 
