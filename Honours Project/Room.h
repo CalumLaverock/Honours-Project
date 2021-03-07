@@ -4,19 +4,21 @@
 class Room
 {
 public:
-	Room() { movement.x = 0.f; movement.y = 0.f; selected = false; }
+	Room() : movement(0.f,0.f), selected(false), connectedRooms(0) { }
+	bool CheckCollisions(std::vector<Room*> rooms);
+	void ChangeColour(sf::Color newColour);
+	void CalculateConnectedRooms(std::vector<Room*> rooms);
 
 	sf::RectangleShape getShape() { return shape; }
 	void setShape(sf::RectangleShape newShape) { shape = newShape; }
-
-	bool CheckCollisions(std::vector<Room*> rooms);
-
-	bool IsSelected() { return selected; }
-	void SetSelected(bool select) { selected = select; }
+	bool isSelected() { return selected; }
+	void setSelected(bool select) { selected = select; }
+	int getConnections() { return connectedRooms; }
 
 private:
 	sf::RectangleShape shape;
 	sf::Vector2f movement;
 	bool selected;
+	int connectedRooms;
 };
 

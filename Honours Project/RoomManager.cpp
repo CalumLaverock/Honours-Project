@@ -28,12 +28,12 @@ void RoomManager::GenerateRooms(int numRooms)
         roomSize.y = (rand() % 120) + 20;
 
         roomShape.setSize(roomSize);
+        roomShape.setOrigin(roomSize / 2.f);
+        roomShape.setPosition(GetRandomPointInCircle());
+
         roomShape.setFillColor(sf::Color::Green);
         roomShape.setOutlineThickness(3.f);
         roomShape.setOutlineColor(sf::Color::Blue);
-
-        roomShape.setOrigin(roomSize / 2.f);
-        roomShape.setPosition(GetRandomPointInCircle());
 
         room->setShape(roomShape);
         rooms.push_back(room);
@@ -57,31 +57,28 @@ void RoomManager::SeparateRooms(bool& collide)
     }
 }
 
-void RoomManager::SelectRoomsBySize(float xThreshold, float yThreshold)
+void RoomManager::SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold)
 {
     for (auto room : rooms)
     {
-        if (room->getShape().getSize().x >= xThreshold && room->getShape().getSize().y >= yThreshold)
+        room->CalculateConnectedRooms(rooms);
+
+        if ((room->getShape().getSize().x >= xThreshold && room->getShape().getSize().y >= yThreshold) &&
+            (room->getConnections() >= 3))
         {
-            sf::RectangleShape newShape;
-            sf::RectangleShape oldShape = room->getShape();
+            room->ChangeColour(sf::Color::Cyan);
 
-            // change the room's fill color to cyan if it is selected
-            newShape = oldShape;
-            newShape.setFillColor(sf::Color::Cyan);
-
-            room->SetSelected(true);
-
-            room->setShape(newShape);
+            room->setSelected(true);
         }
     }
 }
 
 void RoomManager::SelectObjectiveRooms()
 {
-    selectedRooms.clear();
+    finalRooms.clear();
 
     bool selectingRooms = true;
+
     Room* firstObjRoom = NULL;
     Room* secondObjRoom = NULL;
 
@@ -90,41 +87,45 @@ void RoomManager::SelectObjectiveRooms()
         selectingRooms = false;
 
         firstObjRoom = rooms[rand() % rooms.size()];
-        while (!firstObjRoom->IsSelected())
+        while (!firstObjRoom->isSelected())
         {
             firstObjRoom = rooms[rand() % rooms.size()];
         }
 
+        // create an inner bound rectangle which will prevent rooms from being selected as objective rooms within it
+        // this inner bound is 3 times the size of the first room
         sf::Vector2f innerBoundSize(firstObjRoom->getShape().getSize() * 3.f);
         innerBound.setSize(innerBoundSize);
         innerBound.setOrigin(innerBoundSize / 2.f);
         innerBound.setPosition(firstObjRoom->getShape().getPosition());
 
-        sf::Color innerBoundColor(0xff, 0xff, 0xff, 0x99);
+        sf::Color innerBoundColor(0xff, 0xff, 0xff, 0x77);
         innerBound.setFillColor(innerBoundColor);
 
-        sf::Vector2f outerBoundSize(firstObjRoom->getShape().getSize() * 5.f);
+        // create an outer bound rectangle which will mean only rooms within it can be selected as objective rooms
+        // this outer bound is 6 times the size of the first room
+        sf::Vector2f outerBoundSize(firstObjRoom->getShape().getSize() * 6.f);
         outerBound.setSize(outerBoundSize);
         outerBound.setOrigin(outerBoundSize / 2.f);
         outerBound.setPosition(firstObjRoom->getShape().getPosition());
 
-        sf::Color outerBoundColor(0xff, 0x77, 0xff, 0x99);
+        sf::Color outerBoundColor(0xff, 0x77, 0xff, 0x77);
         outerBound.setFillColor(outerBoundColor);
 
         int timeout = 0;
 
         secondObjRoom = rooms[rand() % rooms.size()];
-        // while the room is in the inner bounds, not in the outer bounds, or is not a selected room
+        // while the room is in the inner bounds, or not in the outer bounds, or is not a selected room
         // get a new room and test it against these parameters again
         while (secondObjRoom->getShape().getGlobalBounds().intersects(innerBound.getGlobalBounds())
             || !secondObjRoom->getShape().getGlobalBounds().intersects(outerBound.getGlobalBounds())
-            || !secondObjRoom->IsSelected())
+            || !secondObjRoom->isSelected())
         {
             secondObjRoom = rooms[rand() % rooms.size()];
 
-            // only try 20 rooms, otherwise start the room selection over again
+            // only try an arbitrary number of rooms, if none fit the criteria then start the entire room selection process again
             timeout += 1;
-            if (timeout > 20)
+            if (timeout >= 19)
             {
                 selectingRooms = true;
                 break;
@@ -132,38 +133,15 @@ void RoomManager::SelectObjectiveRooms()
         }
     }
 
-    // deselect all rooms that aren't the objective rooms and change their colour back to green
-    for (auto room : rooms)
-    {
-        if (room != firstObjRoom && room != secondObjRoom)
-        {
-            sf::RectangleShape newShape;
-            sf::RectangleShape oldShape = room->getShape();
+    // colour the objective rooms magenta and push them onto a separate vector
+    firstObjRoom->ChangeColour(sf::Color::Magenta);
+    secondObjRoom->ChangeColour(sf::Color::Magenta);
 
-            // change the room's fill color to cyan if it is selected
-            newShape = oldShape;
-            newShape.setFillColor(sf::Color::Green);
-
-            room->SetSelected(false);
-
-            room->setShape(newShape);
-        }
-        else
-        {
-            sf::RectangleShape newShape;
-            sf::RectangleShape oldShape = room->getShape();
-
-            // change the room's fill color to cyan if it is selected
-            newShape = oldShape;
-            newShape.setFillColor(sf::Color::Cyan);
-
-            room->setShape(newShape);
-
-            selectedRooms.push_back(room);
-        }
-    }
+    finalRooms.push_back(firstObjRoom);
+    finalRooms.push_back(secondObjRoom);
 }
 
+// random point in circle function taken from [--INSERT WEBPAGE--]
 sf::Vector2f RoomManager::GetRandomPointInCircle()
 {
     float t = 2 * 3.14159 * ((double)rand() / (RAND_MAX));

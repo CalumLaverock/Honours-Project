@@ -28,3 +28,39 @@ bool Room::CheckCollisions(std::vector<Room*> rooms)
 	// return true if the room has to move this frame
 	return (movement.x > 0.f || movement.y > 0.f);
 }
+
+void Room::ChangeColour(sf::Color newColour)
+{
+	sf::RectangleShape newShape;
+	sf::RectangleShape oldShape = shape;
+
+	// change the room's fill color to cyan if it is selected
+	newShape = oldShape;
+	newShape.setFillColor(newColour);
+
+	shape = newShape;
+}
+
+void Room::CalculateConnectedRooms(std::vector<Room*> rooms)
+{
+	connectedRooms = 0;
+
+	sf::RectangleShape boundingBox;
+	sf::Vector2f size(shape.getSize().x + 10.f, shape.getSize().y + 10.f);
+	boundingBox.setSize(size);
+	boundingBox.setOrigin(size / 2.f);
+	boundingBox.setPosition(shape.getPosition());
+
+	for (auto room : rooms)
+	{
+		if (room != this)
+		{
+			if (boundingBox.getGlobalBounds().intersects(room->getShape().getGlobalBounds()))
+			{
+				connectedRooms++;
+			}
+
+			// if required to check direction, check connected rooms position relative to this room
+		}
+	}
+}

@@ -20,6 +20,7 @@ int main()
     shape.setPosition(centre.x - radius, centre.y - radius);
 
     bool collide = false;
+    bool separated = false;
     bool drawSelected = false;
     bool drawBounds = false;
     bool debugMode = false;
@@ -37,25 +38,27 @@ int main()
             {
                 if (!debugMode)
                 {
+                    // outwith debug mode, allow the user to generate the entire map with one key
                     if (event.key.code == sf::Keyboard::Space)
                     {
-                        // stop room separation, generate a new set of rooms, highlight rooms above a certain size, and start room separation
+                        // stop room separation, generate a new set of rooms, and start room separation
                         collide = false;
 
                         roomManager->ClearRooms();
 
                         roomManager->GenerateRooms(70);
-                        roomManager->SelectRoomsBySize(75.f, 75.f);
 
                         collide = true;
                     }
                 }
                 else
                 {
+                    // within debug mode, allow the user to perform each step of map generation separately
                     if (event.key.code == sf::Keyboard::G)
                     {
                         // stop room separation and generate a new set of rooms
                         collide = false;
+                        separated = false;
 
                         roomManager->ClearRooms();
 
@@ -71,13 +74,16 @@ int main()
                     if (event.key.code == sf::Keyboard::R)
                     {
                         // select all rooms above certain x and y lengths
-                        roomManager->SelectRoomsBySize(75.f, 75.f);
+                        roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f);
                     }
 
                     if (event.key.code == sf::Keyboard::O)
                     {
-                        // select the objective rooms
-                        roomManager->SelectObjectiveRooms();
+                        if (separated)
+                        {
+                            // select the objective rooms
+                            roomManager->SelectObjectiveRooms();
+                        }
                     }
 
                     if (event.key.code == sf::Keyboard::N)
@@ -112,10 +118,19 @@ int main()
         {
             roomManager->SeparateRooms(collide);
             
-            if (!collide && !debugMode)
+            if (!collide)
             {
-                // once the rooms are separated, select the objective rooms unless in debug mode
-                roomManager->SelectObjectiveRooms();
+                if (!debugMode)
+                {
+                    // while not in debug mode, automatically select the objective rooms when the rooms have finished separating
+                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f);
+                    roomManager->SelectObjectiveRooms();
+                }
+                else
+                {
+                    // while in debug mode, set a flag when the rooms have finished separating
+                    separated = true;
+                }
             }
         }
 
@@ -128,12 +143,12 @@ int main()
 
         window.draw(shape);
 
-        for (auto room : roomManager->GetRooms())
+        for (auto room : roomManager->getRooms())
         {
             // allow for toggling of only drawing selected rooms
             if (drawSelected)
             {
-                if (room->IsSelected())
+                if (room->isSelected())
                 {
                     window.draw(room->getShape());
                 }
@@ -146,6 +161,7 @@ int main()
 
         if (drawBounds)
         {
+            // draw the bounding rectangles around the first objective room
             window.draw(roomManager->getOuterBound());
             window.draw(roomManager->getInnerBound());
         }
