@@ -10,14 +10,10 @@ int main()
 
     srand(time(NULL));
     float radius = 200.f;
-    sf::Vector2f centre(800.f, 450.f);
+    sf::Vector2f centre(970.f, 450.f);
 
     RoomManager* roomManager = new RoomManager();
     roomManager->Init(radius / 2, centre);
-
-    sf::CircleShape shape(radius);
-    shape.setFillColor(sf::Color::Red);
-    shape.setPosition(centre.x - radius, centre.y - radius);
 
     bool collide = false;
     bool separated = false;
@@ -27,13 +23,13 @@ int main()
 
     while (window.isOpen())
     {
+        //---HANDLE INPUT---
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            //---HANDLE INPUT---
             if (event.type == sf::Event::KeyPressed)
             {
                 if (!debugMode)
@@ -73,8 +69,13 @@ int main()
 
                     if (event.key.code == sf::Keyboard::R)
                     {
-                        // select all rooms above certain x and y lengths
-                        roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f);
+                        // rooms must be separated before selection as number of connected rooms can only be properly calculated
+                        // after separation
+                        if (separated)
+                        {
+                            // select all rooms above certain x and y lengths
+                            roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
+                        }
                     }
 
                     if (event.key.code == sf::Keyboard::O)
@@ -83,6 +84,17 @@ int main()
                         {
                             // select the objective rooms
                             roomManager->SelectObjectiveRooms();
+                        }
+                    }
+
+                    if (event.key.code == sf::Keyboard::A)
+                    {
+                        // rooms must be separated before selection as number of connected rooms can only be properly calculated
+                        // after separation
+                        if (separated)
+                        {
+                            // select all rooms above certain x and y lengths
+                            roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
                         }
                     }
 
@@ -123,8 +135,9 @@ int main()
                 if (!debugMode)
                 {
                     // while not in debug mode, automatically select the objective rooms when the rooms have finished separating
-                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f);
+                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
                     roomManager->SelectObjectiveRooms();
+                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
                 }
                 else
                 {
@@ -140,8 +153,6 @@ int main()
 
         //---RENDER---
         window.clear();
-
-        window.draw(shape);
 
         for (auto room : roomManager->getRooms())
         {

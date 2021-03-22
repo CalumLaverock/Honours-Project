@@ -46,7 +46,7 @@ void Room::CalculateConnectedRooms(std::vector<Room*> rooms)
 	connectedRooms = 0;
 
 	sf::RectangleShape boundingBox;
-	sf::Vector2f size(shape.getSize().x + 10.f, shape.getSize().y + 10.f);
+	sf::Vector2f size(shape.getSize().x + 20.f, shape.getSize().y + 20.f);
 	boundingBox.setSize(size);
 	boundingBox.setOrigin(size / 2.f);
 	boundingBox.setPosition(shape.getPosition());

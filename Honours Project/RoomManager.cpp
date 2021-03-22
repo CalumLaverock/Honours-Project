@@ -57,24 +57,60 @@ void RoomManager::SeparateRooms(bool& collide)
     }
 }
 
-void RoomManager::SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold)
+void RoomManager::UpdateSelectedRooms()
 {
+    selectedRooms.clear();
+
     for (auto room : rooms)
     {
-        room->CalculateConnectedRooms(rooms);
-
-        if ((room->getShape().getSize().x >= xThreshold && room->getShape().getSize().y >= yThreshold) &&
-            (room->getConnections() >= 3))
+        if (room->isSelected())
         {
-            room->ChangeColour(sf::Color::Cyan);
+            // colour the locked in rooms as Magenta and the non-locked selected rooms as cyan
+            sf::Color newColor = room->isLockedIn() ? sf::Color::Magenta : sf::Color::Cyan;
+            room->ChangeColour(newColor);
 
-            room->setSelected(true);
+            selectedRooms.push_back(room);
+        }
+        else
+        {
+            room->ChangeColour(sf::Color::Green);
         }
     }
 }
 
+void RoomManager::SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold, int numConnect)
+{
+    for (auto room : rooms)
+    {
+        room->setSelected(false);
+
+        if (room->getShape().getSize().x >= xThreshold && room->getShape().getSize().y >= yThreshold)
+        {
+            // only calculate the number of connections if the room is the right size
+            room->CalculateConnectedRooms(rooms);
+
+            if (room->getConnections() >= numConnect)
+            {
+                room->setSelected(true);
+            }
+        }
+
+        // if the room has been deselected but is locked in, then unlock it
+        // if the room is still selected and is locked in, keep it locked in
+        bool stillLocked = room->isLockedIn() && room->isSelected();
+        room->setLockedIn(stillLocked);
+    }
+
+    UpdateSelectedRooms();
+}
+
 void RoomManager::SelectObjectiveRooms()
 {
+    // remove currently locked in rooms to allow for reselecting objective rooms
+    for (auto finalRoom : finalRooms)
+    {
+        finalRoom->setLockedIn(false);
+    }
     finalRooms.clear();
 
     bool selectingRooms = true;
@@ -135,10 +171,14 @@ void RoomManager::SelectObjectiveRooms()
 
     // colour the objective rooms magenta and push them onto a separate vector
     firstObjRoom->ChangeColour(sf::Color::Magenta);
-    secondObjRoom->ChangeColour(sf::Color::Magenta);
-
+    firstObjRoom->setLockedIn(true);
     finalRooms.push_back(firstObjRoom);
+
+    secondObjRoom->ChangeColour(sf::Color::Magenta);
+    secondObjRoom->setLockedIn(true);
     finalRooms.push_back(secondObjRoom);
+
+    UpdateSelectedRooms();
 }
 
 // random point in circle function taken from [--INSERT WEBPAGE--]

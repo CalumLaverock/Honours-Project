@@ -10,7 +10,7 @@ public:
 	void GenerateRooms(int numRooms);
 	void SeparateRooms(bool& collide);
 
-	void SelectRoomsBySizeAndConnections(float x, float y);
+	void SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold, int numConnect = 0);
 	void SelectObjectiveRooms();
 
 	void ClearRooms();
@@ -20,11 +20,13 @@ public:
 	sf::RectangleShape getOuterBound() { return outerBound; }
 
 private:
+	void UpdateSelectedRooms();
 	sf::Vector2f GetRandomPointInCircle();
 
 	float circleRad;
 	sf::Vector2f circleCentre;
 	std::vector<Room*> rooms;
+	std::vector<Room*> selectedRooms;
 	std::vector<Room*> finalRooms;
 
 	sf::RectangleShape innerBound;
