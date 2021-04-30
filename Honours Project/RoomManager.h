@@ -4,32 +4,44 @@
 class RoomManager
 {
 public:
-	RoomManager();
+	RoomManager() : circleRad(0.f), circleCentre(0.f, 0.f), defSpawnRoom(nullptr), atkSpawnRoom(nullptr), restart(false) { }
 
 	void Init(float radius, sf::Vector2f centre);
 	void GenerateRooms(int numRooms);
 	void SeparateRooms(bool& collide);
 
 	void SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold, int numConnect = 0);
-	void SelectObjectiveRooms();
+	bool SelectObjectiveRooms();
+	bool SelectSpawnRooms();
+	void ConnectRooms();
 
 	void ClearRooms();
 
 	std::vector<Room*> getRooms() { return rooms; }
-	sf::RectangleShape getInnerBound() { return innerBound; }
-	sf::RectangleShape getOuterBound() { return outerBound; }
+	std::vector<Room*> getSelectedRooms() { return selectedRooms; }
+	std::vector<Room*> getFinalRooms() { return finalRooms; }
+	std::vector<sf::RectangleShape> getConnectionBounds() { return connectionBoundingRectangles; }
 
 private:
 	void UpdateSelectedRooms();
+	bool CheckSpawnConditions(bool defSpawn);
+	std::vector<sf::Vector2f> CalculateVectors(Room* spawnRoom);
 	sf::Vector2f GetRandomPointInCircle();
+	float GetDistanceBetweenRooms(Room* r1, Room* r2);
+	sf::Vector2f CalculateMidpoint(sf::Vector2f a, sf::Vector2f b);
+
+	bool restart;
 
 	float circleRad;
 	sf::Vector2f circleCentre;
+
+	Room* defSpawnRoom;
+	Room* atkSpawnRoom;
 	std::vector<Room*> rooms;
 	std::vector<Room*> selectedRooms;
+	std::vector<Room*> objectiveRooms;
 	std::vector<Room*> finalRooms;
 
-	sf::RectangleShape innerBound;
-	sf::RectangleShape outerBound;
+	std::vector<sf::RectangleShape> connectionBoundingRectangles;
 };
 

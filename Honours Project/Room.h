@@ -11,14 +11,22 @@ public:
 
 	sf::RectangleShape getShape() { return shape; }
 	void setShape(sf::RectangleShape newShape) { shape = newShape; }
+	sf::RectangleShape getInnerBound() { return innerBound; }
+	void setInnerBound(sf::RectangleShape bound) { innerBound = bound; }
+	sf::RectangleShape getOuterBound() { return outerBound; }
+	void setOuterBound(sf::RectangleShape bound) { outerBound = bound; }
 	bool isSelected() { return selected; }
 	void setSelected(bool select) { selected = select; }
 	bool isLockedIn() { return lockedIn; }
 	void setLockedIn(bool locked) { lockedIn = locked; }
+
 	int getConnections() { return connectedRooms; }
 
 private:
 	sf::RectangleShape shape;
+	sf::RectangleShape innerBound;
+	sf::RectangleShape outerBound;
+
 	sf::Vector2f movement;
 	bool selected;
 	bool lockedIn;

@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <time.h>
 #include "RoomManager.h"
+#include <iostream>
 
 int main()
 {
@@ -12,17 +13,41 @@ int main()
     float radius = 200.f;
     sf::Vector2f centre(970.f, 450.f);
 
+    sf::Font font;
+    if (!font.loadFromFile("fonts/coolvetica.ttf"))
+    {
+        std::cout << "ERROR: Failed to load font" << std::endl;
+    }
+
     RoomManager* roomManager = new RoomManager();
     roomManager->Init(radius / 2, centre);
 
+    bool restart = false;
     bool collide = false;
     bool separated = false;
+    bool connected = false;
     bool drawSelected = false;
     bool drawBounds = false;
     bool debugMode = false;
 
     while (window.isOpen())
     {
+        // if the restart flag is set, start room generation from the beginning
+        if (restart)
+        {
+            // unset the restart flag, stop room separation, generate a new set of rooms, and start room separation 
+            restart = false;
+            collide = false;
+            separated = false;
+            connected = false;
+
+            roomManager->ClearRooms();
+
+            roomManager->GenerateRooms(70);
+
+            collide = true;
+        }
+
         //---HANDLE INPUT---
         sf::Event event;
         while (window.pollEvent(event))
@@ -37,8 +62,11 @@ int main()
                     // outwith debug mode, allow the user to generate the entire map with one key
                     if (event.key.code == sf::Keyboard::Space)
                     {
-                        // stop room separation, generate a new set of rooms, and start room separation
+                        // unset the restart flag, stop room separation, generate a new set of rooms, and start room separation 
+                        restart = false;
                         collide = false;
+                        separated = false;
+                        connected = false;
 
                         roomManager->ClearRooms();
 
@@ -53,8 +81,10 @@ int main()
                     if (event.key.code == sf::Keyboard::G)
                     {
                         // stop room separation and generate a new set of rooms
+                        restart = false;
                         collide = false;
                         separated = false;
+                        connected = false;
 
                         roomManager->ClearRooms();
 
@@ -67,34 +97,46 @@ int main()
                         collide = true;
                     }
 
-                    if (event.key.code == sf::Keyboard::R)
+                    if (separated)
                     {
-                        // rooms must be separated before selection as number of connected rooms can only be properly calculated
-                        // after separation
-                        if (separated)
+                        if (event.key.code == sf::Keyboard::R)
                         {
+                            // rooms must be separated before selection as number of connected rooms can only be properly calculated
+                            // after separation
                             // select all rooms above certain x and y lengths
                             roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
                         }
-                    }
 
-                    if (event.key.code == sf::Keyboard::O)
-                    {
-                        if (separated)
+                        if (event.key.code == sf::Keyboard::O)
                         {
                             // select the objective rooms
                             roomManager->SelectObjectiveRooms();
                         }
-                    }
 
-                    if (event.key.code == sf::Keyboard::A)
-                    {
-                        // rooms must be separated before selection as number of connected rooms can only be properly calculated
-                        // after separation
-                        if (separated)
+                        if (event.key.code == sf::Keyboard::A)
                         {
+                            // rooms must be separated before selection as number of connected rooms can only be properly calculated
+                            // after separation
                             // select all rooms above certain x and y lengths
                             roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
+                        }
+
+                        if (event.key.code == sf::Keyboard::P)
+                        {
+                            // select the objective rooms
+                            roomManager->SelectSpawnRooms();
+                        }
+
+                        if (event.key.code == sf::Keyboard::C)
+                        {
+                            // only allow the connection process once per map, running ConnectRooms more than once in a map will delete all rooms
+                            if (!connected)
+                            {
+                                // connect each spawn room to the other important rooms and remove all non-connected rooms
+                                roomManager->ConnectRooms();
+
+                                connected = true;
+                            }
                         }
                     }
 
@@ -136,8 +178,20 @@ int main()
                 {
                     // while not in debug mode, automatically select the objective rooms when the rooms have finished separating
                     roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
-                    roomManager->SelectObjectiveRooms();
+                    if (!roomManager->SelectObjectiveRooms())
+                    {
+                        restart = true;
+                    }
                     roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
+                    if (!roomManager->SelectSpawnRooms())
+                    {
+                        restart = true;
+                    }
+                    if (!restart)
+                    {
+                        roomManager->ConnectRooms();
+                        connected = true;
+                    }
                 }
                 else
                 {
@@ -154,28 +208,67 @@ int main()
         //---RENDER---
         window.clear();
 
-        for (auto room : roomManager->getRooms())
+        if (roomManager->getRooms().size() > 0)
         {
-            // allow for toggling of only drawing selected rooms
-            if (drawSelected)
+            for (auto room : roomManager->getRooms())
             {
-                if (room->isSelected())
+                // allow for toggling of only drawing selected rooms
+                if (drawSelected)
+                {
+                    if (room->isSelected())
+                    {
+                        window.draw(room->getShape());
+                    }
+                }
+                else
                 {
                     window.draw(room->getShape());
                 }
             }
-            else
+        }
+        else
+        {
+            for (auto finalRoom : roomManager->getFinalRooms())
             {
-                window.draw(room->getShape());
+                window.draw(finalRoom->getShape());
             }
         }
 
         if (drawBounds)
         {
-            // draw the bounding rectangles around the first objective room
-            window.draw(roomManager->getOuterBound());
-            window.draw(roomManager->getInnerBound());
+            if (roomManager->getFinalRooms().size() > 0)
+            {
+                for (auto room : roomManager->getFinalRooms())
+                {
+                    // draw the bounding rectangles around the objective rooms if they have bounds set
+                    window.draw(room->getInnerBound());
+                    window.draw(room->getOuterBound());
+                }
+
+                if (connected)
+                {
+                    for (auto bounds : roomManager->getConnectionBounds())
+                    {
+                        window.draw(bounds);
+                    }
+                }
+            }
         }
+
+        //---DRAW HUD---
+        sf::Text debugText("[D]ebug Mode:", font, 45), debugToggle;
+        debugText.setPosition(0, 0);
+
+        std::string debugOnOff = debugMode ? "On" : "Off";
+        sf::Color debugColor = debugMode ? sf::Color::Green : sf::Color::Red;
+        debugToggle.setString(debugOnOff);
+        debugToggle.setFillColor(debugColor);
+        debugToggle.setFont(font);
+        debugToggle.setCharacterSize(45);
+        debugToggle.setPosition(280, 0);
+
+        window.draw(debugToggle);
+        window.draw(debugText);
 
         window.display();
     }
