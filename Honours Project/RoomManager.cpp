@@ -26,8 +26,6 @@ void RoomManager::GenerateRooms(int numRooms)
         roomShape.setPosition(GetRandomPointInCircle());
 
         roomShape.setFillColor(sf::Color::Green);
-        /*roomShape.setOutlineThickness(3.f);
-        roomShape.setOutlineColor(sf::Color::Blue);*/
 
         room->setShape(roomShape);
         rooms.push_back(room);

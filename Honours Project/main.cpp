@@ -30,6 +30,7 @@ int main()
     bool drawBounds = false;
     bool debugMode = false;
 
+    //---UPDATE---
     while (window.isOpen())
     {
         // if the restart flag is set, start room generation from the beginning
@@ -166,7 +167,6 @@ int main()
             }
         }
 
-        //---UPDATE---
         // separate rooms once S key is pressed
         if (collide)
         {
