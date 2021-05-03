@@ -105,7 +105,7 @@ int main()
                             // rooms must be separated before selection as number of connected rooms can only be properly calculated
                             // after separation
                             // select all rooms above certain x and y lengths
-                            roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
+                            roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 3);
                         }
 
                         if (event.key.code == sf::Keyboard::O)
@@ -119,7 +119,7 @@ int main()
                             // rooms must be separated before selection as number of connected rooms can only be properly calculated
                             // after separation
                             // select all rooms above certain x and y lengths
-                            roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
+                            roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 2);
                         }
 
                         if (event.key.code == sf::Keyboard::P)
@@ -177,12 +177,12 @@ int main()
                 if (!debugMode)
                 {
                     // while not in debug mode, automatically select the objective rooms when the rooms have finished separating
-                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 3);
+                    roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 3);
                     if (!roomManager->SelectObjectiveRooms())
                     {
                         restart = true;
                     }
-                    roomManager->SelectRoomsBySizeAndConnections(75.f, 75.f, 2);
+                    roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 2);
                     if (!roomManager->SelectSpawnRooms())
                     {
                         restart = true;

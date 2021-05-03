@@ -9,6 +9,9 @@ void RoomManager::Init(float radius, sf::Vector2f centre)
 
 void RoomManager::GenerateRooms(int numRooms)
 {
+    float max = 140.f;
+    float min = 20.f;
+
     for (int i = 0; i < numRooms; i++)
     {
         Room* room = new Room();
@@ -17,9 +20,11 @@ void RoomManager::GenerateRooms(int numRooms)
 
         sf::Vector2f roomSize;
 
-        //random room size between 20 and 140 units
-        roomSize.x = (rand() % 120) + 20;
-        roomSize.y = (rand() % 120) + 20;
+        //random room size between min and max values
+        // get a random room size that is more likely to be closer to the min than the max size
+        // ((float)rand() / RAND_MAX) will return a random number in the range [0, 1)
+        roomSize.x = std::floor(std::abs(((float)rand() / RAND_MAX) - ((float)rand() / RAND_MAX)) * (1 + max - min) + min);
+        roomSize.y = std::floor(std::abs(((float)rand() / RAND_MAX) - ((float)rand() / RAND_MAX)) * (1 + max - min) + min);
 
         roomShape.setSize(roomSize);
         roomShape.setOrigin(roomSize / 2.f);
