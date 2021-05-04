@@ -12,6 +12,7 @@ int main()
     srand(time(NULL));
     float radius = 200.f;
     sf::Vector2f centre(970.f, 450.f);
+    sf::Vector2f roomSizeThreshold(45.f, 45.f);
 
     sf::Font font;
     if (!font.loadFromFile("fonts/coolvetica.ttf"))
@@ -49,18 +50,29 @@ int main()
             collide = true;
         }
 
-        //---HANDLE INPUT---
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
 
+            //---HANDLE INPUT---
             if (event.type == sf::Event::KeyPressed)
             {
+                if (event.key.code == sf::Keyboard::Escape)
+                {
+                    window.close();
+                }
+
+                if (event.key.code == sf::Keyboard::D)
+                {
+                    // toggle debug mode
+                    debugMode = !debugMode;
+                }
+                
+                // outwith debug mode, allow the user to generate the entire map with one key
                 if (!debugMode)
                 {
-                    // outwith debug mode, allow the user to generate the entire map with one key
                     if (event.key.code == sf::Keyboard::Space)
                     {
                         // unset the restart flag, stop room separation, generate a new set of rooms, and start room separation 
@@ -105,7 +117,7 @@ int main()
                             // rooms must be separated before selection as number of connected rooms can only be properly calculated
                             // after separation
                             // select all rooms above certain x and y lengths
-                            roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 3);
+                            roomManager->SelectRoomsBySizeAndConnections(roomSizeThreshold, 3);
                         }
 
                         if (event.key.code == sf::Keyboard::O)
@@ -122,7 +134,7 @@ int main()
                             // rooms must be separated before selection as number of connected rooms can only be properly calculated
                             // after separation
                             // select all rooms above certain x and y lengths
-                            roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 2);
+                            roomManager->SelectRoomsBySizeAndConnections(roomSizeThreshold, 2);
                         }
 
                         if (event.key.code == sf::Keyboard::P)
@@ -159,17 +171,6 @@ int main()
                         drawBounds = !drawBounds;
                     }
                 }
-
-                if (event.key.code == sf::Keyboard::D)
-                {
-                    // toggle debug mode
-                    debugMode = !debugMode;
-                }
-
-                if (event.key.code == sf::Keyboard::Escape)
-                {
-                    window.close();
-                }
             }
         }
 
@@ -182,13 +183,13 @@ int main()
             {
                 if (!debugMode)
                 {
-                    // while not in debug mode, automatically select the objective rooms when the rooms have finished separating
-                    roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 3);
+                    // while not in debug mode, automatically perform the rest of the steps when the rooms have finished separating
+                    roomManager->SelectRoomsBySizeAndConnections(roomSizeThreshold, 3);
                     if (!roomManager->SelectObjectiveRooms())
                     {
                         restart = true;
                     }
-                    roomManager->SelectRoomsBySizeAndConnections(45.f, 45.f, 2);
+                    roomManager->SelectRoomsBySizeAndConnections(roomSizeThreshold, 2);
                     if (!roomManager->SelectSpawnRooms())
                     {
                         restart = true;
@@ -244,12 +245,16 @@ int main()
         {
             for (auto bounds : roomManager->getConnectionBounds())
             {
-                // set the bounding rectangles to cyan to match the other rooms in the map
-                bounds.setFillColor(sf::Color::Cyan);
+                // set the bounding rectangles' colours to transluscent red if being viewed as bounding rectangles
+                // or as cyan if being viewed as filling gaps when connecting rooms
+                sf::Color boundsColor = drawBounds ? sf::Color(0xff, 0x00, 0x00, 0x77) : sf::Color::Cyan;
+
+                bounds.setFillColor(boundsColor);
 
                 window.draw(bounds);
             }
 
+            // redraw the non-cyan coloured rooms on top of the cyan bounding rectangles
             for (auto obj : roomManager->getObjectiveRooms())
             {
                 window.draw(obj->getShape());
@@ -258,34 +263,21 @@ int main()
             window.draw(roomManager->getDefSpawn()->getShape());
         }
 
-        if (drawBounds)
-        {
-            if (connected)
-            {
-                for (auto bounds : roomManager->getConnectionBounds())
-                {
-                    // set the bounding rectangles to transluscent red to stand out
-                    bounds.setFillColor(sf::Color(0xff, 0x00, 0x00, 0xff));
-
-                    window.draw(bounds);
-                }
-            }
-        }
-
         //---DRAW HUD---
-        sf::Text debugText("[D]ebug Mode:", font, 45), debugToggle;
+        sf::Text debugText("[D]ebug Mode:", font, 45), debugToggle, controls("Controls in README", font, 45);
         debugText.setPosition(0, 0);
 
-        std::string debugOnOff = debugMode ? "On" : "Off";
-        sf::Color debugColor = debugMode ? sf::Color::Green : sf::Color::Red;
-        debugToggle.setString(debugOnOff);
-        debugToggle.setFillColor(debugColor);
+        debugToggle.setString(debugMode ? "On" : "Off");
+        debugToggle.setFillColor(debugMode ? sf::Color::Green : sf::Color::Red);
         debugToggle.setFont(font);
         debugToggle.setCharacterSize(45);
         debugToggle.setPosition(280, 0);
 
+        controls.setPosition(0, 60);
+
         window.draw(debugToggle);
         window.draw(debugText);
+        window.draw(controls);
 
         window.display();
     }

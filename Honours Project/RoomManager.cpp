@@ -56,13 +56,13 @@ void RoomManager::SeparateRooms(bool& collide)
     }
 }
 
-void RoomManager::SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold, int numConnect)
+void RoomManager::SelectRoomsBySizeAndConnections(sf::Vector2f sizeThreshold, int numConnect)
 {
     for (auto room : rooms)
     {
         room->setSelected(false);
 
-        if (room->getShape().getSize().x >= xThreshold && room->getShape().getSize().y >= yThreshold)
+        if (room->getShape().getSize().x >= sizeThreshold.x && room->getShape().getSize().y >= sizeThreshold.y)
         {
             // only calculate the number of connections if the room is the right size
             room->CalculateConnectedRooms(rooms);
@@ -521,7 +521,8 @@ sf::Vector2f RoomManager::GetRandomPointInCircle()
     else
         r = u;
 
-    return sf::Vector2f(circleRad * r * std::cos(t) + circleCentre.x, circleRad * r * std::sin(t) + circleCentre.y);
+    return sf::Vector2f(circleRad * r * std::cos(t) + circleCentre.x, 
+                        circleRad * r * std::sin(t) + circleCentre.y);
 }
 
 float RoomManager::GetDistanceBetweenRooms(Room* r1, Room* r2)

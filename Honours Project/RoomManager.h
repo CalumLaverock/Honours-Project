@@ -10,7 +10,7 @@ public:
 	void GenerateRooms(int numRooms);
 	void SeparateRooms(bool& collide);
 
-	void SelectRoomsBySizeAndConnections(float xThreshold, float yThreshold, int numConnect = 0);
+	void SelectRoomsBySizeAndConnections(sf::Vector2f sizeThreshold, int numConnect = 0);
 	bool SelectObjectiveRooms();
 	bool SelectSpawnRooms();
 	void ConnectRooms();
