@@ -355,7 +355,7 @@ void RoomManager::ConnectRooms()
 
         connectionBounds.setRotation(rotation);
 
-        connectionBounds.setFillColor(sf::Color(0xff, 0x00, 0x00, 0x77));
+        connectionBounds.setFillColor(sf::Color::Cyan);
 
         connectionBoundingRectangles.push_back(connectionBounds);
     }
@@ -521,9 +521,7 @@ sf::Vector2f RoomManager::GetRandomPointInCircle()
     else
         r = u;
 
-    sf::Vector2f randPoint(circleRad * r * std::cos(t) + circleCentre.x, circleRad * r * std::sin(t) + circleCentre.y);
-
-    return randPoint;
+    return sf::Vector2f(circleRad * r * std::cos(t) + circleCentre.x, circleRad * r * std::sin(t) + circleCentre.y);
 }
 
 float RoomManager::GetDistanceBetweenRooms(Room* r1, Room* r2)

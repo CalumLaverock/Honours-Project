@@ -20,6 +20,9 @@ public:
 	std::vector<Room*> getRooms() { return rooms; }
 	std::vector<Room*> getSelectedRooms() { return selectedRooms; }
 	std::vector<Room*> getFinalRooms() { return finalRooms; }
+	std::vector<Room*> getObjectiveRooms() { return objectiveRooms; }
+	Room* getAtkSpawn() { return atkSpawnRoom; }
+	Room* getDefSpawn() { return defSpawnRoom; }
 	std::vector<sf::RectangleShape> getConnectionBounds() { return connectionBoundingRectangles; }
 
 private:

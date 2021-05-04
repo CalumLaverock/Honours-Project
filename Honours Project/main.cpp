@@ -111,7 +111,10 @@ int main()
                         if (event.key.code == sf::Keyboard::O)
                         {
                             // select the objective rooms
-                            roomManager->SelectObjectiveRooms();
+                            if (!roomManager->SelectObjectiveRooms())
+                            {
+                                restart = true;
+                            }
                         }
 
                         if (event.key.code == sf::Keyboard::A)
@@ -124,8 +127,11 @@ int main()
 
                         if (event.key.code == sf::Keyboard::P)
                         {
-                            // select the objective rooms
-                            roomManager->SelectSpawnRooms();
+                            // select the spawn rooms
+                            if (!roomManager->SelectSpawnRooms())
+                            {
+                                restart = true;
+                            }
                         }
 
                         if (event.key.code == sf::Keyboard::C)
@@ -234,23 +240,34 @@ int main()
             }
         }
 
+        if (connected)
+        {
+            for (auto bounds : roomManager->getConnectionBounds())
+            {
+                // set the bounding rectangles to cyan to match the other rooms in the map
+                bounds.setFillColor(sf::Color::Cyan);
+
+                window.draw(bounds);
+            }
+
+            for (auto obj : roomManager->getObjectiveRooms())
+            {
+                window.draw(obj->getShape());
+            }
+            window.draw(roomManager->getAtkSpawn()->getShape());
+            window.draw(roomManager->getDefSpawn()->getShape());
+        }
+
         if (drawBounds)
         {
-            if (roomManager->getFinalRooms().size() > 0)
+            if (connected)
             {
-                for (auto room : roomManager->getFinalRooms())
+                for (auto bounds : roomManager->getConnectionBounds())
                 {
-                    // draw the bounding rectangles around the objective rooms if they have bounds set
-                    window.draw(room->getInnerBound());
-                    window.draw(room->getOuterBound());
-                }
+                    // set the bounding rectangles to transluscent red to stand out
+                    bounds.setFillColor(sf::Color(0xff, 0x00, 0x00, 0xff));
 
-                if (connected)
-                {
-                    for (auto bounds : roomManager->getConnectionBounds())
-                    {
-                        window.draw(bounds);
-                    }
+                    window.draw(bounds);
                 }
             }
         }
